@@ -1,8 +1,11 @@
 // Item lists
-const listColumns = document.querySelectorAll('.drag-item-list');
-
+const addBtns = document.querySelectorAll('.add-btn:not(.solid)');
+const saveItemBtns = document.querySelectorAll('.solid');
+const addItemContainers = document.querySelectorAll('.add-container');
+const addItems = document.querySelectorAll('.add-item');
 
 // Item lists
+const listColumns = document.querySelectorAll('.drag-item-list');
 const backlogList = document.getElementById('backlog-list');
 const progressList = document.getElementById('progress-list');
 const completeList = document.getElementById('complete-list');
@@ -13,6 +16,7 @@ let backlogListArray = [];
 let progressListArray = [];
 let completeListArray = [];
 let onHoldListArray = [];
+let listArrays = [];
 
 // Drag functionality
 let draggedItem;
@@ -41,10 +45,11 @@ function getSavedColumns() {
 
 // Set localStorage arrays
 function updateSavedColumns() {
-  localStorage.setItem('backlogItems', JSON.stringify(backlogListArray));
-  localStorage.setItem('progressItems', JSON.stringify(progressListArray));
-  localStorage.setItem('completeItems', JSON.stringify(completeListArray));
-  localStorage.setItem('onHoldItems', JSON.stringify(onHoldListArray));
+  listArrays = [backlogListArray, progressListArray, completeListArray, onHoldListArray];
+  const arrayNames = ['backlog', 'progress', 'complete', 'onHold'];
+  arrayNames.forEach((arrayName, index) => {
+    localStorage.setItem(`${arrayName}Items`, JSON.stringify(listArrays[index]));
+  });
 }
 
 // Update columns in DOM - reset HTML, filter array, update localStorage
@@ -143,6 +148,30 @@ function drop(e) {
  const parent = listColumns[currentColumn];
  parent.appendChild(draggedItem);
  rebuildArrays();
+}
+
+// Show add item input box
+function showInputBox(column) {
+  addBtns[column].style.visibility = 'hidden';
+  saveItemBtns[column].style.display = 'flex';
+  addItemContainers[column].style.display = 'flex';
+}
+
+// Hide item input box
+function hideInputBox(column) {
+  addBtns[column].style.visibility = 'visible';
+  saveItemBtns[column].style.display = 'none';
+  addItemContainers[column].style.display = 'none';
+  addToColumn(column);
+}
+
+// Add to column list, reset textbox
+function addToColumn(column) {
+  const itemText = addItems[column].textContent;
+  const selectedArray = listArrays[column];
+  selectedArray.push(itemText);
+  addItems[column].textContent = '';
+  updateDOM();
 }
 
 // On load
