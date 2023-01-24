@@ -49,6 +49,10 @@ ul {
   align-items: flex-start;
 }
 
+.header h2 {
+  margin: 10px;
+}
+
 /* Columns */
 .drag-column {
   flex: 1;
