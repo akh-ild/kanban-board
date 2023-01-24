@@ -13,8 +13,6 @@ let backlogListArray = [];
 let progressListArray = [];
 let completeListArray = [];
 let onHoldListArray = [];
-let listArrays = [backlogListArray, progressListArray, completeListArray, onHoldListArray];
-const arrayNames = ['backlog', 'progress', 'complete', 'onHold'];
 
 // Drag functionality
 let draggedItem;
@@ -26,19 +24,27 @@ let updatedOnLoad = false;
 getSavedColumns();
 updateSavedColumns();
 
-// Set localStorage arrays
-function updateSavedColumns() {
-  arrayNames.forEach((item, index) => {
-    localStorage.setItem(`${item}Item`, JSON.stringify(listArrays[index]));
-  });
-}
-
 // Get arrays from localStorage if avalable, set default if not
 function getSavedColumns() {
-  backlogListArray = localStorage.getItem('backlogItems') ? JSON.parse(localStorage.backlogItems) : ['Release the course', 'Sit back and relax'];
-  progressListArray = localStorage.getItem('backlogItems') ? JSON.parse(localStorage.progressItems) : progressListArray = ['Work on projects', 'Listen to music'];
-  completeListArray = localStorage.getItem('backlogItems') ? JSON.parse(localStorage.completeItems) : completeListArray = ['Being cool', 'Getting stuff done'];
-  onHoldListArray = localStorage.getItem('backlogItems') ? JSON.parse(localStorage.onHoldItems) : onHoldListArray = ['Being uncool'];
+  if (localStorage.getItem('backlogItems')) {
+    backlogListArray = JSON.parse(localStorage.backlogItems);
+    progressListArray = JSON.parse(localStorage.progressItems);
+    completeListArray = JSON.parse(localStorage.completeItems);
+    onHoldListArray = JSON.parse(localStorage.onHoldItems);
+  } else {
+    backlogListArray = ['Release the course', 'Sit back and relax'];
+    progressListArray = ['Work on projects', 'Listen to music'];
+    completeListArray = ['Being cool', 'Getting stuff done'];
+    onHoldListArray = ['Being uncool'];
+  }
+}
+
+// Set localStorage arrays
+function updateSavedColumns() {
+  localStorage.setItem('backlogItems', JSON.stringify(backlogListArray));
+  localStorage.setItem('progressItems', JSON.stringify(progressListArray));
+  localStorage.setItem('completeItems', JSON.stringify(completeListArray));
+  localStorage.setItem('onHoldItems', JSON.stringify(onHoldListArray));
 }
 
 // Update columns in DOM - reset HTML, filter array, update localStorage
@@ -71,6 +77,31 @@ function updateDOM() {
   onHoldListArray.forEach((onHoldItem) => {
     createItemEl(onHoldList, onHoldItem);
   });
+
+  // Run getSavedColumns only once, update local storage
+  updatedOnLoad = true;
+  updateSavedColumns();
+}
+
+// Allows arrays to reflect drag and drop items
+function rebuildArrays() {
+  backlogListArray = [];
+  progressListArray = [];
+  completeListArray = [];
+  onHoldListArray = [];
+  for (let i = 0; i < backlogList.children.length; i++) {
+    backlogListArray.push(backlogList.children[i].textContent);
+  }
+  for (let i = 0; i < progressList.children.length; i++) {
+    progressListArray.push(progressList.children[i].textContent);
+  }
+  for (let i = 0; i < completeList.children.length; i++) {
+    completeListArray.push(completeList.children[i].textContent);
+  }
+  for (let i = 0; i < onHoldList.children.length; i++) {
+    onHoldListArray.push(onHoldList.children[i].textContent);
+  }
+  updateDOM();
 }
 
 // Create DOM elements for each list item
@@ -111,6 +142,7 @@ function drop(e) {
  // Add item to column
  const parent = listColumns[currentColumn];
  parent.appendChild(draggedItem);
+ rebuildArrays();
 }
 
 // On load
