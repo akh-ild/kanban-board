@@ -73,7 +73,7 @@ ul {
 .progress-column .header,
 .progress-column .solid,
 .progress-column .solid:hover,
-.backlog-column .over {
+.progress-column .over {
   background-color: var(--column-2);
 }
 
