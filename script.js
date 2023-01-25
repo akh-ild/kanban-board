@@ -20,6 +20,7 @@ let listArrays = [];
 
 // Drag functionality
 let draggedItem;
+let dragging = false;
 let currentColumn;
 
 // Items
@@ -87,22 +88,10 @@ function updateDOM() {
 
 // Allows arrays to reflect drag and drop items
 function rebuildArrays() {
-  backlogListArray = [];
-  for (let i = 0; i < backlogListEl.children.length; i++) {
-    backlogListArray.push(backlogListEl.children[i].textContent);
-  }
-  progressListArray = [];
-  for (let i = 0; i < progressListEl.children.length; i++) {
-    progressListArray.push(progressListEl.children[i].textContent);
-  }
-  completeListArray = [];
-  for (let i = 0; i < completeListEl.children.length; i++) {
-    completeListArray.push(completeListEl.children[i].textContent);
-  }
-  onHoldListArray = [];
-  for (let i = 0; i < onHoldListEl.children.length; i++) {
-    onHoldListArray.push(onHoldListEl.children[i].textContent);
-  }
+  backlogListArray = Array.from(backlogListEl.children).map(item => item.textContent);
+  progressListArray = Array.from(progressListEl.children).map(item => item.textContent);
+  completeListArray = Array.from(completeListEl.children).map(item => item.textContent);
+  onHoldListArray = Array.from(onHoldListEl.children).map(item => item.textContent);
   updateDOM();
 }
 
@@ -125,12 +114,14 @@ function createItemEl(columnEl, column, item, index) {
 function updateItem(id, column) {
   const selectedArray = listArrays[column];
   const selectedColumn = listColumns[column].children;
-  if (!selectedColumn[id].textContent) {
-    delete selectedArray[id];
-  } else {
-    selectedArray[id] = selectedColumn[id].textContent;
+  if (!dragging) {
+    if (!selectedColumn[id].textContent) {
+      delete selectedArray[id];
+    } else {
+      selectedArray[id] = selectedColumn[id].textContent;
+    }
+    updateDOM();
   }
-  updateDOM();
 }
 
 // Filter arrays to remove empty items
@@ -147,6 +138,7 @@ function drag(e) {
 // Column allow for item to drop
 function allowDrop(e) {
   e.preventDefault();
+  dragging = true;
 }
 
 // When item enters column area
@@ -165,6 +157,8 @@ function drop(e) {
 });
  // Add item to column
  parent.appendChild(draggedItem);
+ // Dragging complete
+ dragging = false;
  rebuildArrays();
 }
 
